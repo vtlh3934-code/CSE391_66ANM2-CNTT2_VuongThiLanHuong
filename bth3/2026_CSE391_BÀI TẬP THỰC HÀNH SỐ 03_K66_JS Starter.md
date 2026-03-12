@@ -315,9 +315,10 @@ btnHello.addEventListener("click", function () {
 #### Bước 1: Đọc \& giải thích
 
 > Câu hỏi:
-> - `document.getElementById("status")` đang làm gì?
-> - Sự kiện `"click"` xảy ra khi nào?
-> - Trong đoạn code trên, khi nhấn nút `btnHello`, điều gì thay đổi trên trang?
+> - `document.getElementById("status")` đang làm gì? Lệnh này yêu cầu trình duyệt tìm kiếm toàn bộ tài liệu HTML (Document) và lấy ra phần tử (Element) có thuộc tính id chính xác là "status". Nó trả về một đối tượng đại diện cho thẻ đó để JavaScript có thể tương tác.
+> - Sự kiện `"click"` xảy ra khi nào? Sự kiện này được kích hoạt (trigger) ngay khi người dùng nhấn chuột trái (hoặc chạm vào màn hình cảm ứng) lên phần tử đã được gắn sự kiện (trong trường hợp này là nút btnHello).
+> - Trong đoạn code trên, khi nhấn nút `btnHello`, điều gì thay đổi trên trang? Nội dung văn bản bên trong thẻ
+(ban đầu là "Chưa có tương tác...") sẽ bị thay đổi ngay lập tức thành chuỗi: "Xin chào! Đây là nội dung được thay đổi bằng JavaScript."
 
 ---
 
@@ -336,6 +337,9 @@ btnRed.addEventListener("click", function () {
 
 > Câu hỏi:
 > - Em có thể đổi sang màu khác (vd. `lightblue`) không? Hãy thử.
+> - Hoàn toàn được. Bạn chỉ cần sửa giá trị chuỗi màu gán cho thuộc tính backgroundColor. Code thay thế sẽ là:
+      document.body.style.backgroundColor = "lightblue";
+
 > - Em hãy ghi lại 1 ví dụ khác mà JavaScript có thể làm với `document.body.style`.
 
 ---
@@ -356,7 +360,9 @@ nameInput.addEventListener("input", function () {
 
 > Câu hỏi:
 > - Sự kiện `"input"` khác gì so với `"click"`?
+> - Chỉ kích hoạt một lần khi bạn bấm vào một phần tử. "input": Kích hoạt liên tục và ngay lập tức mỗi khi       giá trị của ô nhập liệu thay đổi
 > - Khi em xoá hết nội dung ô input, dòng `greeting` hiển thị gì?
+      Khi xóa hết, biến value sẽ nhận giá trị là một chuỗi rỗng "". Do đó, dòng greeting sẽ ghép nối và           hiển thị: "Xin chào, !"
 
 ---
 
@@ -366,9 +372,9 @@ nameInput.addEventListener("input", function () {
 >
 > Em hãy:
 > - Tự mô tả DOM bằng lời của em:
->   ................................................................
+>   DOM giống như một "bản vẽ kỹ thuật" hoặc một "cái cây" được trình duyệt tạo ra sau khi đọc file HTML.       Ở đó, mỗi thẻ HTML (như ,) biến thành một "cành" hoặc "lá" (gọi là object/node). Nhờ cái cây này,           JavaScript có thể tìm đường đến đúng chiếc lá nó cần để đổi màu, đổi chữ hoặc cắt bỏ chiếc lá đó đi.
 > - Nêu 1 ví dụ “thao tác DOM” trong bài (ghi lại 1 dòng lệnh cụ thể).
-
+        Ví dụ về thao tác thay đổi nội dung của một phần tử DOM: greeting.textContent = "Xin chào, " + value + "!";
 ---
 
 #### Bước 5: Ảnh kết quả
@@ -406,8 +412,10 @@ $("#btnHello").on("click", function () {
 > - Điểm giống nhau về chức năng giữa 2 đoạn code trên là gì?
 > - Điểm khác nhau về cú pháp là gì (`document.getElementById` vs `$("#id")`, `addEventListener` vs `.on`)?
 > - Em hãy tra cứu nhanh “What is jQuery used for?” và ghi 2 ý chính:
->   1. ................................................................
->   2. ................................................................
+>   1.Điểm giống nhau về chức năng giữa 2 đoạn code trên là gì? Cả hai đoạn code đều thực hiện cùng một          mục đích: Lắng nghe hành động click chuột của người dùng lên phần tử có id là btnHello, và khi click       thì hiển thị một hộp thoại thông báo (alert).
+      Điểm khác nhau về cú pháp là gì (document.getElementById vs $("#id"), addEventListener vs .on)? Cách       chọn phần tử: JS thuần dùng hàm khá dài dòng là document.getElementById("btnHello"). Trong khi đó,         jQuery dùng cú pháp ngắn gọn $() và mượn cách viết của CSS selector: $("#btnHello").
+>   2.Làm cho việc duyệt tài liệu HTML, thao tác DOM, xử lý sự kiện và tạo hoạt ảnh (animations) trở nên         đơn giản và viết ít code hơn rất nhiều ("Write less, do more").
+      Xử lý các yêu cầu AJAX (lấy dữ liệu từ máy chủ mà không cần tải lại trang) một cách dễ dàng và đồng        nhất, giúp giải quyết vấn đề không tương thích giữa các trình duyệt web khác nhau.
 
 ---
 
@@ -416,8 +424,8 @@ $("#btnHello").on("click", function () {
 > 1. Sau buổi lab, em tò mò nhất về phần nào của JavaScript/DOM?
 > 2. Em muốn tự làm thêm tính năng gì trên trang web (vd: bộ đếm, đổi theme, pop-up, mini game, …)?
 > 3. Em đánh giá mức độ hiểu của mình về:
->    - Biến \& kiểu dữ liệu: [ ] Chưa hiểu  [ ] Tạm ổn  [ ] Khá rõ
->    - If/else \& hàm:       [ ] Chưa hiểu  [ ] Tạm ổn  [ ] Khá rõ
+>    - Biến \& kiểu dữ liệu: [ ] Chưa hiểu  [ x] Tạm ổn  [ ] Khá rõ
+>    - If/else \& hàm:       [ ] Chưa hiểu  [ ] Tạm ổn  [x ] Khá rõ
 >    - DOM \& sự kiện:       [ ] Chưa hiểu  [ ] Tạm ổn  [ ] Khá rõ
 
 ---
