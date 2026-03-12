@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>Form đăng ký</title>
+<link rel="stylesheet" href="2.1.css">
+</head>
+
+<body>
+
+<h2>Đăng ký tài khoản</h2>
+
+<form id="registerForm">
+
+<div>
+<label>Họ và tên</label><br>
+<input type="text" id="fullname">
+<span class="error" id="fullnameError"></span>
+</div>
+
+<div>
+<label>Email</label><br>
+<input type="text" id="email">
+<span class="error" id="emailError"></span>
+</div>
+
+<div>
+<label>Số điện thoại</label><br>
+<input type="text" id="phone">
+<span class="error" id="phoneError"></span>
+</div>
+
+<div>
+<label>Mật khẩu</label><br>
+<input type="password" id="password">
+<span class="error" id="passwordError"></span>
+</div>
+
+<div>
+<label>Xác nhận mật khẩu</label><br>
+<input type="password" id="confirmPassword">
+<span class="error" id="confirmPasswordError"></span>
+</div>
+
+<div>
+<label>Giới tính</label><br>
+<input type="radio" name="gender" value="Nam"> Nam
+<input type="radio" name="gender" value="Nữ"> Nữ
+<span class="error" id="genderError"></span>
+</div>
+
+<div>
+<input type="checkbox" id="terms"> Đồng ý điều khoản
+<span class="error" id="termsError"></span>
+</div>
+
+<br>
+
+<button type="submit">Đăng ký</button>
+
+</form>
+
+<div id="success"></div>
+
+<script src="2.1.js"></script>
+
+</body>
+</html>

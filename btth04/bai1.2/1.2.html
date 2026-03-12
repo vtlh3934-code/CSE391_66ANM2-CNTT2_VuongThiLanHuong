@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>Bộ lọc & tìm kiếm sinh viên</title>
+
+<link rel="stylesheet" href="1.2.css">
+</head>
+
+<body>
+
+<h2>Danh sách sinh viên</h2>
+
+<input type="text" id="search" placeholder="Tìm theo tên...">
+
+<select id="filterRank">
+<option value="all">Tất cả</option>
+<option value="Giỏi">Giỏi</option>
+<option value="Khá">Khá</option>
+<option value="Trung bình">Trung bình</option>
+<option value="Yếu">Yếu</option>
+</select>
+
+<table>
+
+<thead>
+<tr>
+<th>STT</th>
+<th>Họ tên</th>
+<th id="scoreHeader">Điểm</th>
+<th>Xếp loại</th>
+</tr>
+</thead>
+
+<tbody id="tableBody"></tbody>
+
+</table>
+
+<p id="noResult"></p>
+
+<script src="1.2.js"></script>
+
+</body>
+</html>

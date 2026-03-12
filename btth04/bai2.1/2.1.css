@@ -1,0 +1,28 @@
+body{
+font-family: Arial;
+}
+
+input{
+padding:6px;
+margin-top:5px;
+}
+
+.error{
+color:red;
+font-size:13px;
+display:block;
+}
+
+input.error-border{
+border:2px solid red;
+}
+
+input.success-border{
+border:2px solid green;
+}
+
+#success{
+font-size:20px;
+color:green;
+margin-top:20px;
+}
