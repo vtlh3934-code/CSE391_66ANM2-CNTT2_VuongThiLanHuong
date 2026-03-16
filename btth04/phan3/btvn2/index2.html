@@ -1,0 +1,218 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Đăng Ký Nhiều Bước - Bài 2</title>
+    <style>
+        :root { --primary-color: #4a90e2; --success-color: #2ecc71; --error-color: #e74c3c; }
+        body { font-family: 'Segoe UI', sans-serif; background-color: #f4f7f6; display: flex; justify-content: center; padding: 40px; }
+        .form-container { background: white; width: 500px; padding: 30px; border-radius: 15px; box-shadow: 0 10px 25px rgba(0,0,0,0.1); }
+        
+        /* Progress Bar */
+        .progress-container { display: flex; justify-content: space-between; margin-bottom: 30px; position: relative; }
+        .progress-container::before { content: ""; background: #ddd; position: absolute; top: 50%; left: 0; transform: translateY(-50%); height: 4px; width: 100%; z-index: 1; }
+        .progress-fill { content: ""; background: var(--primary-color); position: absolute; top: 50%; left: 0; transform: translateY(-50%); height: 4px; width: 0%; z-index: 2; transition: 0.4s; }
+        .step-node { width: 35px; height: 35px; background: #fff; border: 4px solid #ddd; border-radius: 50%; display: flex; justify-content: center; align-items: center; z-index: 3; transition: 0.4s; font-weight: bold; }
+        .step-node.active { border-color: var(--primary-color); color: var(--primary-color); }
+        .step-node.completed { background: var(--primary-color); border-color: var(--primary-color); color: white; }
+
+        /* Form Steps */
+        .form-step { display: none; }
+        .form-step.active { display: block; animation: fadeIn 0.5s; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+
+        h2 { text-align: center; color: #333; margin-bottom: 20px; }
+        .form-group { margin-bottom: 15px; }
+        label { display: block; margin-bottom: 5px; font-weight: 600; }
+        input, select { width: 100%; padding: 12px; border: 1px solid #ccc; border-radius: 8px; box-sizing: border-box; }
+        .error-msg { color: var(--error-color); font-size: 12px; margin-top: 5px; min-height: 18px; }
+
+        /* Buttons */
+        .btn-group { display: flex; gap: 10px; margin-top: 20px; }
+        button { flex: 1; padding: 12px; border: none; border-radius: 8px; cursor: pointer; font-weight: bold; font-size: 16px; }
+        .btn-next { background: var(--primary-color); color: white; }
+        .btn-prev { background: #95a5a6; color: white; }
+        .btn-submit { background: var(--success-color); color: white; }
+
+        /* Review Section */
+        .review-box { background: #f9f9f9; padding: 15px; border-radius: 8px; border-left: 5px solid var(--primary-color); }
+        .review-item { margin-bottom: 10px; }
+        .review-item strong { color: #555; }
+    </style>
+</head>
+<body>
+
+<div class="form-container">
+    <div class="progress-container">
+        <div class="progress-fill" id="progress-line"></div>
+        <div class="step-node active" id="node-1">1</div>
+        <div class="step-node" id="node-2">2</div>
+        <div class="step-node" id="node-3">3</div>
+    </div>
+
+    <form id="multi-step-form" novalidate>
+        <div class="form-step active" id="step-1">
+            <h2>Thông tin cá nhân</h2>
+            <div class="form-group">
+                <label>Họ và tên</label>
+                <input type="text" id="fullname" placeholder="Nhập ít nhất 3 ký tự">
+                <div class="error-msg" id="err-fullname"></div>
+            </div>
+            <div class="form-group">
+                <label>Ngày sinh</label>
+                <input type="date" id="dob">
+                <div class="error-msg" id="err-dob"></div>
+            </div>
+            <div class="form-group">
+                <label>Giới tính</label>
+                <select id="gender">
+                    <option value="">-- Chọn giới tính --</option>
+                    <option value="Nam">Nam</option>
+                    <option value="Nữ">Nữ</option>
+                    <option value="Khác">Khác</option>
+                </select>
+                <div class="error-msg" id="err-gender"></div>
+            </div>
+            <div class="btn-group">
+                <button type="button" class="btn-next" onclick="nextStep(1)">Tiếp theo</button>
+            </div>
+        </div>
+
+        <div class="form-step" id="step-2">
+            <h2>Thông tin tài khoản</h2>
+            <div class="form-group">
+                <label>Email</label>
+                <input type="email" id="email" placeholder="example@gmail.com">
+                <div class="error-msg" id="err-email"></div>
+            </div>
+            <div class="form-group">
+                <label>Mật khẩu</label>
+                <input type="password" id="password" placeholder="Tối thiểu 8 ký tự">
+                <div class="error-msg" id="err-password"></div>
+            </div>
+            <div class="form-group">
+                <label>Xác nhận mật khẩu</label>
+                <input type="password" id="confirmPassword">
+                <div class="error-msg" id="err-confirmPassword"></div>
+            </div>
+            <div class="btn-group">
+                <button type="button" class="btn-prev" onclick="prevStep(2)">Quay lại</button>
+                <button type="button" class="btn-next" onclick="nextStep(2)">Tiếp theo</button>
+            </div>
+        </div>
+
+        <div class="form-step" id="step-3">
+            <h2>Xác nhận thông tin</h2>
+            <div class="review-box" id="review-content">
+                </div>
+            <div class="btn-group">
+                <button type="button" class="btn-prev" onclick="prevStep(3)">Quay lại</button>
+                <button type="submit" class="btn-submit">Xác nhận Đăng ký</button>
+            </div>
+        </div>
+    </form>
+</div>
+
+<script>
+    let currentStep = 1;
+
+    // --- 1. Hàm điều hướng bước ---
+    function updateUI() {
+        // Hiện bước tương ứng
+        document.querySelectorAll('.form-step').forEach((step, idx) => {
+            step.classList.toggle('active', idx + 1 === currentStep);
+        });
+
+        // Cập nhật Thanh tiến trình
+        const nodes = document.querySelectorAll('.step-node');
+        nodes.forEach((node, idx) => {
+            if (idx + 1 < currentStep) node.className = 'step-node completed';
+            else if (idx + 1 === currentStep) node.className = 'step-node active';
+            else node.className = 'step-node';
+        });
+
+        const progressLine = document.getElementById('progress-line');
+        progressLine.style.width = ((currentStep - 1) / (nodes.length - 1)) * 100 + '%';
+
+        // Nếu là bước 3, tổng hợp dữ liệu
+        if (currentStep === 3) showReview();
+    }
+
+    function nextStep(step) {
+        if (validateStep(step)) {
+            currentStep++;
+            updateUI();
+        }
+    }
+
+    function prevStep(step) {
+        currentStep--;
+        updateUI();
+    }
+
+    // --- 2. Hàm Validate theo từng bước ---
+    function validateStep(step) {
+        let valid = true;
+        if (step === 1) {
+            const name = document.getElementById('fullname').value.trim();
+            const dob = document.getElementById('dob').value;
+            const gender = document.getElementById('gender').value;
+
+            if (name.length < 3) { showError('fullname', 'Tên ít nhất 3 ký tự'); valid = false; }
+            else clearError('fullname');
+
+            if (!dob) { showError('dob', 'Vui lòng chọn ngày sinh'); valid = false; }
+            else clearError('dob');
+
+            if (!gender) { showError('gender', 'Vui lòng chọn giới tính'); valid = false; }
+            else clearError('gender');
+        } 
+        else if (step === 2) {
+            const email = document.getElementById('email').value;
+            const pass = document.getElementById('password').value;
+            const confirm = document.getElementById('confirmPassword').value;
+
+            if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) { showError('email', 'Email không hợp lệ'); valid = false; }
+            else clearError('email');
+
+            if (pass.length < 8) { showError('password', 'Mật khẩu ít nhất 8 ký tự'); valid = false; }
+            else clearError('password');
+
+            if (pass !== confirm) { showError('confirmPassword', 'Mật khẩu không khớp'); valid = false; }
+            else clearError('confirmPassword');
+        }
+        return valid;
+    }
+
+    function showError(id, msg) {
+        document.getElementById(`err-${id}`).textContent = msg;
+        document.getElementById(id).style.borderColor = 'var(--error-color)';
+    }
+
+    function clearError(id) {
+        document.getElementById(`err-${id}`).textContent = '';
+        document.getElementById(id).style.borderColor = '#ccc';
+    }
+
+    // --- 3. Tổng hợp thông tin bước 3 ---
+    function showReview() {
+        const review = document.getElementById('review-content');
+        review.innerHTML = `
+            <div class="review-item"><strong>Họ tên:</strong> ${document.getElementById('fullname').value}</div>
+            <div class="review-item"><strong>Ngày sinh:</strong> ${document.getElementById('dob').value}</div>
+            <div class="review-item"><strong>Giới tính:</strong> ${document.getElementById('gender').value}</div>
+            <div class="review-item"><strong>Email:</strong> ${document.getElementById('email').value}</div>
+        `;
+    }
+
+    // --- 4. Sự kiện Submit cuối cùng ---
+    document.getElementById('multi-step-form').addEventListener('submit', function(e) {
+        e.preventDefault();
+        alert("🎉 Chúc mừng! Tài khoản của bạn đã được đăng ký thành công.");
+        location.reload();
+    });
+</script>
+
+</body>
+</html>

@@ -1,0 +1,221 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Đặt Hàng Trực Tuyến</title>
+    <style>
+        body { font-family: 'Segoe UI', sans-serif; background-color: #f4f7f6; padding: 20px; display: flex; justify-content: center; }
+        .container { background: white; padding: 30px; border-radius: 12px; box-shadow: 0 5px 20px rgba(0,0,0,0.1); width: 500px; }
+        h2 { text-align: center; color: #2c3e50; border-bottom: 2px solid #3498db; padding-bottom: 10px; }
+        
+        .form-group { margin-bottom: 15px; }
+        label { display: block; margin-bottom: 5px; font-weight: 600; }
+        input, select, textarea { width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 6px; box-sizing: border-box; }
+        textarea { height: 80px; resize: none; }
+        
+        .error-input { border-color: #e74c3c !important; background: #fff5f5; }
+        .error-text { color: #e74c3c; font-size: 12px; margin-top: 4px; min-height: 15px; }
+        
+        .char-count { text-align: right; font-size: 12px; color: #666; margin-top: 2px; }
+        .char-over { color: #e74c3c; font-weight: bold; }
+        
+        .price-display { background: #e8f4fd; padding: 15px; border-radius: 6px; font-weight: bold; color: #2980b9; font-size: 1.1rem; text-align: right; margin: 10px 0; }
+        
+        .btn-submit { width: 100%; padding: 12px; background: #3498db; color: white; border: none; border-radius: 6px; font-weight: bold; cursor: pointer; }
+        
+        /* Modal xác nhận */
+        #confirm-modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); justify-content: center; align-items: center; }
+        .modal-content { background: white; padding: 25px; border-radius: 10px; width: 350px; }
+        .modal-btns { display: flex; gap: 10px; margin-top: 20px; }
+        .btn-confirm { flex: 1; padding: 10px; background: #27ae60; color: white; border: none; border-radius: 5px; cursor: pointer; }
+        .btn-cancel { flex: 1; padding: 10px; background: #95a5a6; color: white; border: none; border-radius: 5px; cursor: pointer; }
+    </style>
+</head>
+<body>
+
+<div class="container" id="form-container">
+    <h2>MẪU ĐẶT HÀNG</h2>
+    <form id="order-form" novalidate>
+        <div class="form-group">
+            <label>Sản phẩm</label>
+            <select id="product">
+                <option value="">-- Chọn sản phẩm --</option>
+                <option value="Laptop">Laptop (20.000.000đ)</option>
+                <option value="Iphone">Iphone 15 (25.000.000đ)</option>
+                <option value="Airpods">Airpods Pro (5.500.000đ)</option>
+            </select>
+            <div class="error-text" id="err-product"></div>
+        </div>
+
+        <div class="form-group">
+            <label>Số lượng (1-99)</label>
+            <input type="number" id="quantity" value="1" min="1" max="99">
+            <div class="error-text" id="err-quantity"></div>
+        </div>
+
+        <div class="price-display">Tổng: <span id="total-price">0đ</span></div>
+
+        <div class="form-group">
+            <label>Ngày giao hàng</label>
+            <input type="date" id="delivery-date">
+            <div class="error-text" id="err-delivery-date"></div>
+        </div>
+
+        <div class="form-group">
+            <label>Địa chỉ nhận hàng</label>
+            <input type="text" id="address" placeholder="Ít nhất 10 ký tự">
+            <div class="error-text" id="err-address"></div>
+        </div>
+
+        <div class="form-group">
+            <label>Ghi chú (Tùy chọn)</label>
+            <textarea id="note" placeholder="Yêu cầu thêm..."></textarea>
+            <div class="char-count" id="char-info">0/200</div>
+            <div class="error-text" id="err-note"></div>
+        </div>
+
+        <div class="form-group">
+            <label>Phương thức thanh toán</label>
+            <div style="display: flex; gap: 10px;">
+                <label style="font-weight: normal;"><input type="radio" name="payment" value="COD"> COD</label>
+                <label style="font-weight: normal;"><input type="radio" name="payment" value="Banking"> Chuyển khoản</label>
+                <label style="font-weight: normal;"><input type="radio" name="payment" value="E-wallet"> Ví điện tử</label>
+            </div>
+            <div class="error-text" id="err-payment"></div>
+        </div>
+
+        <button type="submit" class="btn-submit">TIẾP TỤC ĐẶT HÀNG</button>
+    </form>
+</div>
+
+<div id="confirm-modal">
+    <div class="modal-content">
+        <h3>Xác nhận đơn hàng?</h3>
+        <div id="summary-info" style="font-size: 14px; line-height: 1.8;"></div>
+        <div class="modal-btns">
+            <button class="btn-confirm" id="final-confirm">Xác nhận</button>
+            <button class="btn-cancel" id="final-cancel">Hủy</button>
+        </div>
+    </div>
+</div>
+
+<script>
+    const prices = { "Laptop": 20000000, "Iphone": 25000000, "Airpods": 5500000 };
+    const orderForm = document.getElementById('order-form');
+    
+    // --- 1. Tính tổng tiền tự động ---
+    function updateTotalPrice() {
+        const product = document.getElementById('product').value;
+        const qty = parseInt(document.getElementById('quantity').value) || 0;
+        const price = prices[product] || 0;
+        const total = price * qty;
+        document.getElementById('total-price').textContent = total.toLocaleString('vi-VN') + "đ";
+        return total;
+    }
+
+    document.getElementById('product').addEventListener('change', updateTotalPrice);
+    document.getElementById('quantity').addEventListener('input', updateTotalPrice);
+
+    // --- 2. Đếm ký tự ghi chú realtime ---
+    document.getElementById('note').addEventListener('input', function() {
+        const len = this.value.length;
+        const info = document.getElementById('char-info');
+        info.textContent = `${len}/200`;
+        if(len > 200) info.classList.add('char-over');
+        else info.classList.remove('char-over');
+        clearError('note');
+    });
+
+    // --- 3. Các hàm Validate ---
+    function showError(id, msg) {
+        document.getElementById(id).classList.add('error-input');
+        document.getElementById(`err-${id}`).textContent = msg;
+    }
+
+    function clearError(id) {
+        document.getElementById(id).classList.remove('error-input');
+        document.getElementById(`err-${id}`).textContent = "";
+    }
+
+    function validateForm() {
+        let isValid = true;
+
+        // Sản phẩm
+        if(!document.getElementById('product').value) { showError('product', 'Vui lòng chọn sản phẩm'); isValid = false; }
+        else clearError('product');
+
+        // Số lượng
+        const qty = parseInt(document.getElementById('quantity').value);
+        if(isNaN(qty) || qty < 1 || qty > 99) { showError('quantity', 'Số lượng từ 1-99'); isValid = false; }
+        else clearError('quantity');
+
+        // Ngày giao (Logic date)
+        const dateVal = document.getElementById('delivery-date').value;
+        if(!dateVal) { showError('delivery-date', 'Chọn ngày giao hàng'); isValid = false; }
+        else {
+            const selectedDate = new Date(dateVal);
+            const today = new Date();
+            today.setHours(0,0,0,0);
+            const maxDate = new Date();
+            maxDate.setDate(today.getDate() + 30);
+
+            if(selectedDate < today) { showError('delivery-date', 'Không chọn ngày quá khứ'); isValid = false; }
+            else if(selectedDate > maxDate) { showError('delivery-date', 'Không quá 30 ngày từ nay'); isValid = false; }
+            else clearError('delivery-date');
+        }
+
+        // Địa chỉ
+        if(document.getElementById('address').value.trim().length < 10) { showError('address', 'Địa chỉ ít nhất 10 ký tự'); isValid = false; }
+        else clearError('address');
+
+        // Ghi chú
+        if(document.getElementById('note').value.length > 200) { showError('note', 'Ghi chú tối đa 200 ký tự'); isValid = false; }
+        else clearError('note');
+
+        // Thanh toán
+        const payments = document.getElementsByName('payment');
+        let payChecked = false;
+        payments.forEach(p => { if(p.checked) payChecked = true; });
+        if(!payChecked) { document.getElementById('err-payment').textContent = "Chọn phương thức thanh toán"; isValid = false; }
+        else document.getElementById('err-payment').textContent = "";
+
+        return isValid;
+    }
+
+    // Gán blur để xóa lỗi
+    ['product', 'quantity', 'delivery-date', 'address'].forEach(id => {
+        document.getElementById(id).addEventListener('blur', () => {
+            // Có thể gọi lại validate riêng lẻ ở đây
+        });
+        document.getElementById(id).addEventListener('input', () => clearError(id));
+    });
+
+    // --- 4. Xử lý Submit & Modal ---
+    orderForm.addEventListener('submit', function(e) {
+        e.preventDefault();
+        if(validateForm()) {
+            // Hiện tóm tắt thông tin
+            const summary = `
+                - SP: ${document.getElementById('product').value}<br>
+                - Số lượng: ${document.getElementById('quantity').value}<br>
+                - Tổng: ${document.getElementById('total-price').textContent}<br>
+                - Ngày giao: ${document.getElementById('delivery-date').value}
+            `;
+            document.getElementById('summary-info').innerHTML = summary;
+            document.getElementById('confirm-modal').style.display = 'flex';
+        }
+    });
+
+    document.getElementById('final-cancel').addEventListener('click', () => {
+        document.getElementById('confirm-modal').style.display = 'none';
+    });
+
+    document.getElementById('final-confirm').addEventListener('click', () => {
+        alert("Đơn hàng đã được gửi thành công! 🎉");
+        location.reload();
+    });
+</script>
+
+</body>
+</html>
